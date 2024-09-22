@@ -35,15 +35,17 @@ where
     let cols = table.col_count(&tx);
     let start = Instant::now();
     let data = tx.encode_state_as_update_v2(&StateVector::default());
+    let compressed = zstd::encode_all(&data[..], 4).unwrap();
     let elapsed = start.elapsed();
     let original_len = { File::open(&fpath).unwrap().metadata().unwrap().len() };
     println!(
-        "encoded {} cells ({} rows x {} columns) in {:?}: {} bytes (original file size: {} bytes)\n",
+        "encoded {} cells ({} rows x {} columns) in {:?}: {} bytes, {} compressed (original file size: {} bytes)\n",
         cell_count,
         rows,
         cols,
         elapsed,
         data.len(),
+        compressed.len(),
         original_len
     );
 
